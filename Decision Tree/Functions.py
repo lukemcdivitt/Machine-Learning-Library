@@ -1,11 +1,8 @@
 # this was written by u1200682 for CS 6350
 
 # imports
-from cgi import test
 import pandas as pd
 import numpy as np
-from math import log2
-from collections import Counter
 
 # value
 eps = np.finfo(float).eps
@@ -153,7 +150,7 @@ def predict(instance, tree, default=None):
 def evaluate(tree, test_data, label):
     c_predictions = 0
     w_preditctions = 0
-    for idx in test_data.iterrows():
+    for idx, row in test_data.iterrows():
         prediction = predict(test_data.iloc[idx], tree)
         if prediction == test_data[label].iloc[idx]:
             c_predictions += 1
