@@ -1,6 +1,7 @@
 # this was written by u1200682 for CS 6350
 
 # imports
+import string
 import pandas as pd
 import numpy as np
 
@@ -109,8 +110,8 @@ def create_branch_table(dataframe, node, value):
 def learn_decision_tree(dataframe, decision_tree=None, gain='IG', max_depth=6, level=0):
 
     level = level+1
-
     label = dataframe.keys()
+
     node = determine_max_gain(dataframe, gain)
     attribute_val = np.unique(dataframe[node])
     
@@ -122,7 +123,7 @@ def learn_decision_tree(dataframe, decision_tree=None, gain='IG', max_depth=6, l
     for value in attribute_val:
 
         branch_table = create_branch_table(dataframe, node, value)
-        clValue, counts = np.unique(branch_table['Values'], return_counts=True)
+        clValue, counts = np.unique(branch_table[label[-1]], return_counts=True)
 
         if level == max_depth:
             decision_tree[node][value] = clValue[np.argmax(counts)]
@@ -158,3 +159,13 @@ def evaluate(tree, test_data, label):
             w_preditctions += 1
     accuracy = c_predictions / (c_predictions + w_preditctions)
     return accuracy
+
+# convert numerical values to a binary over or under the median
+def convert_to_binary(data):
+    bar = np.median(data)
+    for idx in range(0, len(data)):
+        if data[idx] > bar:
+            data[idx] = 'Over'
+        else:
+            data[idx] = 'Under'
+    return data
