@@ -136,6 +136,7 @@ def learn_decision_tree(dataframe, decision_tree=None, gain='IG', max_depth=6, l
     return decision_tree
 
 # create a set of functions to test the tree
+# this fucntion is passed an instance and goest through the tree testing the prediction
 def predict(instance, tree, default=None):
     attribute = next(iter(tree))
     if instance[attribute] in tree[attribute].keys():
@@ -147,7 +148,7 @@ def predict(instance, tree, default=None):
     else:
         return default
     
-
+# this function finds the accuracy of the predictions
 def evaluate(tree, test_data, label):
     c_predictions = 0
     w_preditctions = 0
