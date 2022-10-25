@@ -219,8 +219,8 @@ def int_to_bin(training_data, test_data, label, replace=1):
                 if test_data[label[key]][idx] == 'unknown':
                     test_data[label[key]][idx] = train_uni[train_maxpos]
     
-    print(np.unique(test_data[label[key]], return_inverse=True))
-    print(np.unique(training_data[label[key]], return_inverse=True))
+    # print(np.unique(test_data[label[key]], return_inverse=True))
+    # print(np.unique(training_data[label[key]], return_inverse=True))
     return training_data, test_data
 
 # count frequncy of elements
@@ -241,9 +241,25 @@ def convert_to_int(training_data, test_data, numeric_keys):
         pd.to_numeric(test_data[numeric_keys[key]])
     return training_data, test_data
 
+# convert labels to -1 and 1 if required
+def change_leaf(training_data, test_data, leaf=0):
+    label = training_data.keys()[-1]
+    if leaf == 1:
+        for idx in range(0,len(training_data[label])):
+            if training_data[label][idx] == 'yes':
+                training_data[label][idx] = 1
+            else:
+                training_data[label][idx] = -1
+        for idx in range(0,len(training_data[label])):
+            if test_data[label][idx] == 'yes':
+                test_data[label][idx] = 1
+            else:
+                test_data[label][idx] = -1
+
 # convert numerical features to binary
-def num_to_bin(training_data, test_data, numeric_keys, replace=1):
+def num_to_bin(training_data, test_data, numeric_keys, replace=1, leaf=0):
     training_data, test_data = convert_to_int(training_data, test_data, numeric_keys)
     label = freq_count(training_data, test_data)
     training_data, test_data = int_to_bin(training_data, test_data, label, replace)
+    # training_data,test_data = change_leaf(training_data, test_data, leaf)
     return training_data, test_data

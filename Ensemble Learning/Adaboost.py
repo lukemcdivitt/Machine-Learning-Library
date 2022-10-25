@@ -19,12 +19,13 @@ numeric_keys = ['age', 'balance', 'day', 'duration', 'campaign', 'pdays', 'previ
 
 # set whether top replace uknown or not
 replace = 0
+leaf = 1
 
 # convert numerical features to binary
-training_data, test_data = DT_Functions.num_to_bin(training_data, test_data, numeric_keys, replace)
+training_data, test_data = DT_Functions.num_to_bin(training_data, test_data, numeric_keys, replace, leaf)
 
 # create stump
-gain = 'IG'
+gain = 'GI'
 max_depth = 1
 tree_bank = DT_Functions.learn_decision_tree(training_data, gain=gain, max_depth=max_depth)
 pprint.pprint(tree_bank)
