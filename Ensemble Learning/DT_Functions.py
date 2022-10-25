@@ -170,3 +170,80 @@ def convert_to_binary(data):
         else:
             data[idx] = 'Under'
     return data
+
+# print accuarcy 
+def print_accuracy(test_accuracy, train_accuracy):
+    print(test_accuracy)
+    print(train_accuracy)
+    print(np.mean(train_accuracy[0:15]))
+    print(np.mean(train_accuracy[16:31]))
+    print(np.mean(train_accuracy[32:47]))
+    print(np.mean(test_accuracy[0:15]))
+    print(np.mean(test_accuracy[16:31]))
+    print(np.mean(test_accuracy[32:47]))
+
+# convert integers to binary
+def int_to_bin(training_data, test_data, label, replace=1):
+    for key in range(0,len(label)):
+        if isinstance(training_data[label[key]][0], str):
+            pass
+        else:
+            training_data[label[key]] = convert_to_binary(training_data[label[key]])
+            test_data[label[key]] = convert_to_binary(test_data[label[key]])
+
+        if replace == 1:
+            test_uni, test_pos = np.unique(test_data[label[key]],return_inverse=True)
+            train_uni, train_pos = np.unique(training_data[label[key]],return_inverse=True)
+
+            test_count = np.bincount(test_pos)
+            train_count = np.bincount(train_pos)
+
+            test_maxpos = test_count.argmax()
+            train_maxpos = train_count.argmax()
+
+            if train_uni[train_maxpos] == 'unknown':
+                train_uni = np.delete(train_uni, train_maxpos)
+                train_count = np.delete(train_count, train_maxpos)
+                train_maxpos = train_count.argmax()
+
+            if test_uni[test_maxpos] == 'unknown':
+                test_uni = np.delete(test_uni, test_maxpos)
+                test_count = np.delete(test_count, test_maxpos)
+                test_maxpos = test_count.argmax()
+
+            for idx in range(0,len(test_data[label[key]])):
+                if training_data[label[key]][idx] == 'unknown':
+                    training_data[label[key]][idx] = train_uni[train_maxpos]
+        
+        
+                if test_data[label[key]][idx] == 'unknown':
+                    test_data[label[key]][idx] = train_uni[train_maxpos]
+    
+    print(np.unique(test_data[label[key]], return_inverse=True))
+    print(np.unique(training_data[label[key]], return_inverse=True))
+    return training_data, test_data
+
+# count frequncy of elements
+def freq_count(training_data, test_data):
+    label = training_data.keys()
+    counts = {}
+    for element in test_data[label[15]]:
+        if element in counts:
+            counts[element] += 1
+        else:
+            counts[element] = 1
+    return label
+
+# convert pd dataframe values to int
+def convert_to_int(training_data, test_data, numeric_keys):
+    for key in range(0,len(numeric_keys)):
+        pd.to_numeric(training_data[numeric_keys[key]])
+        pd.to_numeric(test_data[numeric_keys[key]])
+    return training_data, test_data
+
+# convert numerical features to binary
+def num_to_bin(training_data, test_data, numeric_keys, replace=1):
+    training_data, test_data = convert_to_int(training_data, test_data, numeric_keys)
+    label = freq_count(training_data, test_data)
+    training_data, test_data = int_to_bin(training_data, test_data, label, replace)
+    return training_data, test_data
