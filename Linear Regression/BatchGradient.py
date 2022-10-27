@@ -20,7 +20,7 @@ ep = 0.0000001
 
 # perform algoithm
 b,w,J,e,cost = bg.batch_descent(r, training_data, ep, max_iter=10000)
-print(b)
+print(np.mean(b))
 print(w)
 
 holder = test_data.to_numpy()
