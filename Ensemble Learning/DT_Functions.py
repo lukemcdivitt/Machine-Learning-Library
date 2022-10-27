@@ -4,12 +4,13 @@
 import string
 import pandas as pd
 import numpy as np
+import random
 
 # value
 eps = np.finfo(float).eps
 
 # create function to calculate purity of overarching
-def find_purity(dataframe, gain='IG'):
+def find_purity(dataframe, w, gain='IG'):
 
     label = dataframe.keys()[-1]
     entropy = 0
@@ -20,6 +21,10 @@ def find_purity(dataframe, gain='IG'):
     values = dataframe[label].unique()
     for value in values:
         probability = dataframe[label].value_counts()[value] / len(dataframe[label])
+        # probability = 0
+        # for idx in range(0,len(dataframe[label])):
+        #         if dataframe[label][idx] == value:
+        #             probability = probability + w[idx]
         if gain == 'IG':
             entropy += -probability * np.log2(probability)
         elif gain == 'ME':
@@ -44,7 +49,7 @@ def find_purity(dataframe, gain='IG'):
     elif gain == 'GI':
         return giniindex
 
-def find_purity_attribute(dataframe, attribute, gain='IG'):
+def find_purity_attribute(dataframe, attribute, w, gain='IG'):
 
     label = dataframe.keys()[-1]
     target_values = dataframe[label].unique()
@@ -62,6 +67,10 @@ def find_purity_attribute(dataframe, attribute, gain='IG'):
             num = len(dataframe[attribute][dataframe[attribute]==value][dataframe[label]==target_value])
             den = len(dataframe[attribute][dataframe[attribute]==value])
             probability = num / (den+eps)
+            # probability = 0
+            # for idx in range(0,len(dataframe[label])):
+            #     if dataframe[label][idx] == target_value:
+            #         probability = probability + w[idx]
             if gain == 'IG':
                 entropy += -probability * np.log2(probability+eps)
             elif gain == 'ME':
@@ -95,11 +104,11 @@ def find_purity_attribute(dataframe, attribute, gain='IG'):
         return abs(giniindex_high)
 
 # find the maximum gain
-def determine_max_gain(dataframe, gain='IG'):
+def determine_max_gain(dataframe, w=0, gain='IG'):
     purity_att = []
     info_gain = []
     for key in dataframe.keys()[:-1]:
-        info_gain.append(find_purity(dataframe,gain) - find_purity_attribute(dataframe, key, gain))
+        info_gain.append(find_purity(dataframe,w,gain) - find_purity_attribute(dataframe, key, w, gain))
     return dataframe.keys()[:-1][np.argmax(info_gain)]
 
 # create a smaller tabel for after branching
@@ -263,3 +272,37 @@ def num_to_bin(training_data, test_data, numeric_keys, replace=1, leaf=0):
     training_data, test_data = int_to_bin(training_data, test_data, label, replace)
     # training_data,test_data = change_leaf(training_data, test_data, leaf)
     return training_data, test_data
+
+###### Random Forest Alterations ########
+
+# learn random tree
+def learn_random_tree(dataframe, decision_tree=None, gain='IG', max_depth=6, level=0, max_features=6):
+
+    level = level+1
+    label = dataframe.keys() 
+
+    if (max_features < len(label)):
+        node = determine_max_gain(dataframe.sample(max_features, replace=False, axis=1), gain=gain)
+    else:
+        node = determine_max_gain(dataframe, gain=gain)
+    attribute_val = np.unique(dataframe[node])
+    
+    if decision_tree is None:
+
+        decision_tree = {}
+        decision_tree[node] = {}
+
+    for value in attribute_val:
+
+        branch_table = create_branch_table(dataframe, node, value)
+        clValue, counts = np.unique(branch_table[label[-1]], return_counts=True)
+
+        if level == max_depth:
+            decision_tree[node][value] = clValue[np.argmax(counts)]
+        else:
+            if len(counts) == 1:
+                decision_tree[node][value] = clValue[0]
+            else:
+                decision_tree[node][value] = learn_decision_tree(branch_table, max_depth=max_depth, level=level)
+
+    return decision_tree

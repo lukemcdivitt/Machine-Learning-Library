@@ -5,7 +5,8 @@ from re import T
 import pandas as pd
 import numpy as np
 import DT_Functions
-import pprint
+import AB_Functions as ab
+from matplotlib import pyplot as plt
 
 # This section is for the bank data ***********************************************
 # import training data
@@ -19,13 +20,37 @@ numeric_keys = ['age', 'balance', 'day', 'duration', 'campaign', 'pdays', 'previ
 
 # set whether top replace uknown or not
 replace = 0
-leaf = 1
 
 # convert numerical features to binary
-training_data, test_data = DT_Functions.num_to_bin(training_data, test_data, numeric_keys, replace, leaf)
+training_data, test_data = DT_Functions.num_to_bin(training_data, test_data, numeric_keys, replace)
 
-# create stump
-gain = 'GI'
-max_depth = 1
-tree_bank = DT_Functions.learn_decision_tree(training_data, gain=gain, max_depth=max_depth)
-pprint.pprint(tree_bank)
+# clarify which gain
+gain = 'IG'
+
+# this is to generate the figures
+iters=10
+test_error = np.ones(iters)
+training_error = np.ones(iters)
+stump_training_error = np.ones(iters)
+stump_test_error = np.ones(iters)
+
+for idx in range(0,iters):
+    classifiers = ab.Adaboost(idx+1)
+    classifiers.build(training_data, gain)
+    test_predictions = classifiers.predict(test_data)
+    train_predictions = classifiers.predict(training_data)
+    test_acc = ab.accuracy(test_data, test_predictions)
+    train_acc = ab.accuracy(training_data, train_predictions)
+    test_error[idx] = 1-test_acc
+    training_error[idx] = 1-train_acc
+    print(test_error)
+
+
+t = np.arange(1,iters+1)
+plt.plot(t,test_error,'r--',t,training_error,'k')
+plt.ylabel('Error')
+plt.xlabel('Iterations')
+plt.title('Error v Iterations')
+plt.legend(['Test Error', 'Training Error'])
+plt.savefig('Figure1_Errors.png')
+plt.show()
