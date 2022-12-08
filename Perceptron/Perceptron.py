@@ -17,8 +17,8 @@ def weights(training_data, learning_rate, T):
             pred = predict(training_data.iloc[instance], w)
             if pred != training_data.iloc[instance][-1]:
                 w[0] = w[0] + learning_rate * (training_data.iloc[instance][-1] - pred)
-                for idx in range(1,len(training_data.iloc[instance])):
-                    w[idx] = w[idx] + learning_rate * (training_data.iloc[instance][-1] - pred) * training_data.iloc[instance][idx]
+                for idx in range(len(training_data.iloc[instance])-1):
+                    w[idx+1] = w[idx+1] + learning_rate * (training_data.iloc[instance][-1] - pred) * training_data.iloc[instance][idx]
     return w
 
 # create a function to create the voted weights
@@ -35,8 +35,8 @@ def voted_weights(training_data, learning_rate, T):
             pred = predict(training_data.iloc[instance], w)
             if pred != training_data.iloc[instance][-1]:
                 w[0] = w[0] + learning_rate * (training_data.iloc[instance][-1] - pred)
-                for idx in range(1,len(training_data.iloc[instance])):
-                    w[idx] = w[idx] + learning_rate * (training_data.iloc[instance][-1] - pred) * training_data.iloc[instance][idx]
+                for idx in range(len(training_data.iloc[instance])-1):
+                    w[idx+1] = w[idx+1] + learning_rate * (training_data.iloc[instance][-1] - pred) * training_data.iloc[instance][idx]
                 w_all.append(w[:])
                 c_all.append(1.0)
             else:
@@ -53,8 +53,8 @@ def averaged_weights(training_data, learning_rate, T):
         for instance in range(len(training_data[keys[0]])):
             pred = predict(training_data.iloc[instance], a)
             w[0] = w[0] + learning_rate * (training_data.iloc[instance][-1] - pred)
-            for idx in range(1,len(training_data.iloc[instance])):
-                w[idx] = w[idx] + learning_rate * (training_data.iloc[instance][-1] - pred) * training_data.iloc[instance][idx] 
+            for idx in range(len(training_data.iloc[instance])-1):
+                w[idx+1] = w[idx+1] + learning_rate * (training_data.iloc[instance][-1] - pred) * training_data.iloc[instance][idx] 
             a += w
         # print('>epoch=%d, lrate=%.3f, error=%.3f' % (T, learning_rate, error_sum))
     return a
