@@ -25,3 +25,6 @@ test_file = 'test.csv'
 
 # test the network
 accuracy = PTF.TestNetwork(net, test_file, device)
+accuracy2 = PTF.TestNetwork(net, train_file, device)
+print(accuracy)
+print(accuracy2)

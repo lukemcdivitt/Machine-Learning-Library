@@ -178,6 +178,9 @@ def w_update(neural_net, case, rate):
 # train the network
 def train_neural_net(neural_net, training_data, gamma0, d, T, num_outputs):
 
+    error = []
+    ep = []
+
     for epoch in range(T):
 
         training_data = rd.sample(training_data,len(training_data))
@@ -193,18 +196,20 @@ def train_neural_net(neural_net, training_data, gamma0, d, T, num_outputs):
             neural_net = backward_pass(neural_net, e_value, case)
             neural_net = w_update(neural_net,case,rate)
     
-        if epoch % 10 == 0:  
-            print("epoch = %4d   loss = %0.4f" % (epoch, err_sum))
+        error.append(err_sum)
+        ep.append(epoch)
+        # if epoch % 10 == 0:  
+        #     print("epoch = %4d   loss = %0.4f" % (epoch, err_sum))
 
-    return neural_net
+    return neural_net,error,ep
 
 # create the trained network
 def create_network(training_data, num_inputs, num_outputs, num_hidden, gamma0, d, init=1, T=10):
 
     neural_net = setup_network(num_inputs,num_outputs,num_hidden, init)
-    trained_nn = train_neural_net(neural_net,training_data,gamma0,d,T,num_outputs)
+    trained_nn,error,ep = train_neural_net(neural_net,training_data,gamma0,d,T,num_outputs)
 
-    return trained_nn
+    return trained_nn,error,ep
 
 # make predictions with the NN
 def predict(neural_net, case):
@@ -251,4 +256,4 @@ def TestCase():
     e_value = [1]
     neural_net = backward_pass(neural_net, e_value, [1,1,1])
 
-    return neural_net, value
+    return value, neural_net

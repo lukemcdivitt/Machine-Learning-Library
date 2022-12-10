@@ -4,6 +4,7 @@
 # imports
 import NeuralNetwork as NN
 import csv
+import matplotlib.pyplot as plt
 
 # read in the data
 file = open('train.csv','r')
@@ -27,13 +28,23 @@ value, neural_net = NN.TestCase()
 # train a network
 num_inputs = len(training_data[1])-1
 num_outputs = 2
-num_hidden = 5 # this is where you can adjust the width
-gamma0 = 0.1
-d = 1
-init = 0
-T = 10
-trained_network = NN.create_network(training_data, num_inputs, num_outputs, num_hidden, gamma0, d, init, T)
-accuracy = NN.accuracy(trained_network, test_data)
-print(accuracy)
-print('done')
+num_hidden = [5,10,25,50] # this is where you can adjust the width
+gamma0 = 0.01
+d = 0.01
+init = 1
+T = 100
+
+# run through different widths
+for idx in range(len(num_hidden)):
+    trained_network,error,ep = NN.create_network(training_data, num_inputs, num_outputs, num_hidden[idx], gamma0, d, init=init, T=T)
+    # plt.plot(ep,error)
+    # plt.xlabel('Epoch')
+    # plt.ylabel('Loss')
+    # plt.title('Convergence Check')
+    # plt.show()
+    accuracy = NN.accuracy(trained_network, test_data)
+    accuracy2 = NN.accuracy(trained_network, training_data)
+    print(accuracy)
+    print(accuracy2)
+
 
