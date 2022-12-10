@@ -22,13 +22,24 @@ for idx in range(0,len(test_data)):
         test_data[idx][idx_2] = float(test_data[idx][idx_2])
 
 # set the vlaues
-learn_rate = 0.0001
-epochs = 100
+learn_rate = 0.001
+epochs = 1000
 v = [0.01, 0.1, 0.5, 1, 3, 5, 10, 100]
 
 # test with the different varainces
+MAP_test = []
+MAP_train = []
+MLE_test =[]
+MLE_train = []
 for var in v:
-    w = LR.fit(training_data, learn_rate, epochs, var)
-    error = LR.accuracy(w, training_data)
-    print('Var:' + str(var) + ' Error:' + str(error))
+    w,w2 = LR.fit(training_data, learn_rate, epochs, var)
+    error = LR.accuracy(w, test_data)
+    error1 = LR.accuracy(w, training_data)
+    error2 = LR.accuracy(w2, test_data)
+    error3 = LR.accuracy(w2, training_data)
+    MAP_test.append(error)
+    MAP_train.append(error1)
+    MLE_test.append(error2)
+    MLE_train.append(error3)
 
+print('Done')

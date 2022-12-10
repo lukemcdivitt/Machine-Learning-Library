@@ -5,13 +5,16 @@
 import numpy as np
 import random as rd
 
-# define the gradient function
+# define the gradient function (MAP)
 def gradient(w, x, y, sigma_square):
     x = np.append(x,1)
     g = (-y*x) / (1+np.exp(y*np.dot(w,x))) + (1/sigma_square)*w
-    # g = (sigmoid(np.dot(w,x)) - y) * x + (1/sigma_square)*w
-    if any(np.isnan(g)):
-        print('allo')
+    return g
+
+# this is the MLE Gradient
+def gradient2(w, x, y, sigma_square):
+    x = np.append(x,1)
+    g = (-y*x) / (1+np.exp(y*np.dot(w,x)))
     return g
 
 # define the sigmoid
@@ -28,6 +31,7 @@ def fit(training_data, gamma0, epochs, sigma_square):
 
     train = np.array(training_data)
     w = np.zeros([len(training_data[0])])
+    w2 = np.zeros([len(training_data[0])])
 
     for idx in range(len(train)):
         if train[idx,-1] == 0:
@@ -35,7 +39,7 @@ def fit(training_data, gamma0, epochs, sigma_square):
 
     for epoch in range(0,epochs):
 
-        learn_rate = rate_schedule(gamma0, d=0.0001, T=epoch)
+        learn_rate = rate_schedule(gamma0, d=0.001, T=epoch)
 
         np.random.shuffle(train)
         x_data = train[:,:-1]
@@ -44,14 +48,18 @@ def fit(training_data, gamma0, epochs, sigma_square):
         for idx in range(len(x_data)):
 
             pred = predict(w, x_data[idx])
+            pred2 = predict(w2,x_data[idx])
 
             if pred != y_data[idx]:
                 w -= learn_rate * (gradient(w, x_data[idx], y_data[idx], sigma_square))
 
+            if pred2 != y_data[idx]:
+                w2 -= learn_rate * (gradient2(w2, x_data[idx], y_data[idx], sigma_square))
+
             if any(np.isnan(w)):
                 print('hello')
 
-    return w
+    return w,w2
 
 # use the weights to predict
 def predict(w, case):
